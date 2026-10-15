@@ -1,0 +1,6 @@
+﻿train: ../datasets/bird_vs_drone/train
+val: ../datasets/bird_vs_drone/valid
+test: ../datasets/bird_vs_drone/test
+
+nc: 2
+names: ['bird', 'drone']

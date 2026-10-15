@@ -1,0 +1,6 @@
+# Update 'path' to your dataset root
+path: datasets/drone_yolo
+train: images/train
+val: images/val
+test: images/test   # optional
+names: [drone]      # e.g. [quadcopter, fixed_wing, bird]
