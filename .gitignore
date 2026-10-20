@@ -6,3 +6,6 @@ datasets/
 *.pt
 *.log
 *.DS_Store
+snapshots/
+recordings/
+.model_cache/

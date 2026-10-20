@@ -11,13 +11,21 @@ import os
 # --------------------------------------------------------------------
 # MODEL SETUP
 # --------------------------------------------------------------------
-print("[INFO] Loading YOLO models...")
-models = {
-    "general": YOLO("yolov8n.pt"),
-    "aerial": YOLO("yolov8n_visdrone.pt"),
-    "drone": YOLO("drone.pt")
+HERE = os.path.dirname(os.path.abspath(__file__))
+MODEL_FILES = {
+    "general": "yolov8n.pt",
+    "visdrone": "yolov8n_visdrone.pt",
+    "drone": "drone.pt",
+    "weapon": "best3.pt",
 }
-print("[INFO] Models loaded successfully ✅")
+_models = {}
+
+
+def get_model(key):
+    if key not in _models:
+        path = os.path.join(HERE, MODEL_FILES[key])
+        _models[key] = YOLO(path if os.path.exists(path) else MODEL_FILES[key])
+    return _models[key]
 
 
 # --------------------------------------------------------------------
@@ -63,6 +71,7 @@ def home_ui():
         <select id="model">
             <option value="general">General (YOLOv8)</option>
             <option value="visdrone">Human & Vehicle (VisDrone)</option>
+            <option value="drone">Drone Detection</option>
             <option value="weapon">Weapon Detection</option>
         </select><br>
 
@@ -147,6 +156,7 @@ def home_ui():
 # DETECTION - CAMERA FRAME
 # --------------------------------------------------------------------
 @app.post("/detect")
+@app.post("/detect_frame")
 async def detect_frame(file: UploadFile = File(...), model_type: str = Form("general")):
     content = await file.read()
     img = cv2.imdecode(np.frombuffer(content, np.uint8), cv2.IMREAD_COLOR)
@@ -201,11 +211,11 @@ async def detect_file(file: UploadFile = File(...), model_type: str = Form("gene
 # DETECTION CORE
 # --------------------------------------------------------------------
 def run_detection(frame, model_type):
-    if model_type not in models:
+    if model_type not in MODEL_FILES:
         print(f"[WARN] Unknown model type received: {model_type}, using default 'general'")
         model_type = "general"
-    model = models[model_type]
-    results = model(frame)
+    model = get_model(model_type)
+    results = model(frame, verbose=False)
     annotated = results[0].plot()
     _, buffer = cv2.imencode(".jpg", annotated)
     return base64.b64encode(buffer).decode("utf-8")
@@ -218,4 +228,4 @@ def run_detection(frame, model_type):
 # --------------------------------------------------------------------
 @app.get("/status")
 def status():
-    return {"status": "running", "models": list(models.keys()), "sources": ["camera", "upload"]}
+    return {"status": "running", "models": list(MODEL_FILES.keys()), "sources": ["camera", "upload"]}

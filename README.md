@@ -1,5 +1,17 @@
 # Drone Detection – End‑to‑End Starter
 
+## Romeo Eye desktop app
+```bash
+python -m venv .venv && .venv\Scripts\activate
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126   # GPU build
+pip install ultralytics opencv-python pillow numpy openvino
+python romeo_eye.py            # or double-click run_romeo_eye.bat
+```
+Weights are looked up in `weights/` (`yolov8m.pt`, `drone.pt`, `sard_humans.pt`, `visdrone.pt`, `weapon.pt`)
+and then in the original `Downloads` locations; set `ROMEO_WEIGHTS_DIR` to use another folder.
+Runs on CUDA with FP16 when a GPU is usable, otherwise on CPU via an OpenVINO export cached in `.model_cache/`.
+Shortcuts: Space start/stop, S snapshot, R record, F11 fullscreen.
+
 This repository gives you a production‑ready template to **train, evaluate, and deploy** a drone detector using the Ultralytics YOLO family (v8/v11). You supply images + annotations; this repo handles the rest.
 
 ## Features
